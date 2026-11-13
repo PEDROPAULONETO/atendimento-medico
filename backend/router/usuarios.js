@@ -20,11 +20,34 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/medicos', async (req, res) => {
+    try {
+        const [medicos] = await pool.execute(
+            'SELECT id, nome, email, crm, especialidade, criado_em FROM usuarios WHERE perfil = ?',
+            ['medico']
+        );
+        return res.status(200).json({ sucesso: true, medicos });
+    } catch (error) {
+        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno ao listar médicos.' });
+    }
+});
+
+router.get('/pacientes', async (req, res) => {
+    try {
+        const [pacientes] = await pool.execute(
+            'SELECT id, nome, email, cpf, telefone, criado_em FROM usuarios WHERE perfil = ?',
+            ['paciente']
+        );
+        return res.status(200).json({ sucesso: true, pacientes });
+    } catch (error) {
+        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno ao listar pacientes.' });
+    }
+});
+
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Busca o usuário no banco
         const [linhas] = await pool.execute(
             'SELECT id, nome, email, perfil, especialidade, telefone, criado_em FROM usuarios WHERE id = ?',
             [id]
@@ -51,64 +74,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('perfil/:perfil', async (req, res) => {
-    try {
-        const { perfil } = req.params;
-
-        // Valida se o perfil informado é válido conforme o ENUM do banco
-        const perfisValidos = ['medico', 'secretaria', 'paciente'];
-        if (!perfisValidos.includes(perfil)) {
-            return res.status(400).json({
-                sucesso: false,
-                mensagem: 'Perfil inválido. Use: medico, secretaria ou paciente.'
-            });
-        }
-
-        // Seleciona os campos de forma segura (ocultando dados sensíveis)
-        const [usuarios] = await pool.execute(
-            'SELECT id, nome, email, perfil, especialidade, telefone, criado_em FROM usuarios WHERE perfil = ?',
-            [perfil]
-        );
-
-        return res.status(200).json({
-            sucesso: true,
-            total: usuarios.length,
-            usuarios
-        });
-
-    } catch (error) {
-        return res.status(500).json({
-            sucesso: false,
-            mensagem: 'Erro interno ao filtrar usuários por perfil.',
-            erro: error.message
-        });
-    }
-});
-
-router.get('/medicos', async (req, res) => {
-    try {
-        const [medicos] = await pool.execute(
-            'SELECT id, nome, email, crm, especialidade, criado_em FROM usuarios WHERE perfil = ?',
-            ['medico']
-        );
-        return res.status(200).json({ sucesso: true, medicos });
-    } catch (error) {
-        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno ao listar médicos.' });
-    }
-});
-
-router.get('/pacientes', async (req, res) => {
-    try {
-        const [pacientes] = await pool.execute(
-            'SELECT id, nome, email, cpf, telefone, criado_em FROM usuarios WHERE perfil = ?',
-            ['paciente']
-        );
-        return res.status(200).json({ sucesso: true, pacientes });
-    } catch (error) {
-        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno ao listar pacientes.' });
-    }
-});
-
 router.post('/', async (req, res) => {
     try {
         const { nome, email, senha, perfil, crm, especialidade, cpf, telefone } = req.body;
@@ -123,7 +88,6 @@ router.post('/', async (req, res) => {
         const saltRounds = 10;
         const senhaHash = await bcrypt.hash(senha, saltRounds);
 
-        // Inserção utilizando query parametrizada (RNF02)
         const [resultado] = await pool.execute(
             `INSERT INTO usuarios (nome, email, senha, perfil, cpf, telefone, crm, especialidade) 
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -146,7 +110,6 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        // Tratamento para e-mail ou CPF duplicado (RN01)
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(400).json({
                 sucesso: false,
@@ -167,7 +130,6 @@ router.patch('/:id', async (req, res) => {
         const { id } = req.params;
         const { nome, email, senha, perfil, cpf, telefone, crm, especialidade } = req.body;
 
-        // 1. Verifica se o usuário existe
         const [usuarioExiste] = await pool.execute('SELECT id FROM usuarios WHERE id = ?', [id]);
         if (usuarioExiste.length === 0) {
             return res.status(404).json({
@@ -176,14 +138,12 @@ router.patch('/:id', async (req, res) => {
             });
         }
 
-        // 2. Prepara a nova senha caso tenha sido enviada
         let senhaHash = undefined;
         if (senha) {
             const saltRounds = 10;
             senhaHash = await bcrypt.hash(senha, saltRounds);
         }
 
-        // 3. Atualiza os campos dinamicamente usando COALESCE (mantém o valor antigo se o campo não for enviado)
         await pool.execute(
             `UPDATE usuarios 
              SET nome = COALESCE(?, nome), 
@@ -233,7 +193,6 @@ router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        // 1. Verifica se o usuário existe
         const [usuarioExiste] = await pool.execute('SELECT id, perfil FROM usuarios WHERE id = ?', [id]);
         if (usuarioExiste.length === 0) {
             return res.status(404).json({
@@ -244,9 +203,8 @@ router.delete('/:id', async (req, res) => {
 
         const usuario = usuarioExiste[0];
 
-        // 2. Opcional: Verifica se o usuário possui consultas associadas para evitar erro de FK
         let colunaVerificacao = usuario.perfil === 'medico' ? 'medico_id' : 'paciente_id';
-        if (usuario.perfil === 'secretaria') colunaVerificacao = null; // Secretárias geralmente não têm FK direta em consultas
+        if (usuario.perfil === 'secretaria') colunaVerificacao = null;
 
         if (colunaVerificacao) {
             const [consultasVinculadas] = await pool.execute(
@@ -262,7 +220,6 @@ router.delete('/:id', async (req, res) => {
             }
         }
 
-        // 3. Executa a exclusão
         await pool.execute('DELETE FROM usuarios WHERE id = ?', [id]);
 
         return res.status(200).json({
