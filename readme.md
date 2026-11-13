@@ -82,34 +82,34 @@ Nesta seção estão descritos os itens oficiais exigidos para a 1ª Entrega, ac
 | Método | Rota | Descrição | Status HTTP | Tipo de Entrega |
 |---|---|---|---|---|
 | **POST** | `/api/consultas` | Agenda uma nova consulta médica | `201 Created` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 123211.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 123211.png>)
 | **GET** | `/api/consultas` | Lista todas as consultas cadastradas (com `JOIN`) | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 123320.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 123320.png>)
 | **PATCH** | `/api/consultas/:id` | Altera a situação (`status`) ou observações | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 123459.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 123459.png>)
 | **GET** | `/api/consultas/:id` | **[EXTRA]** Busca detalhes de uma consulta por ID | `200 OK` / `404 Not Found` | ✨ **Solução Extra** |
-![alt text](<Captura de tela 2026-11-12 123601.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 123601.png>)
 
 #### 👤 Endpoints de Usuários (`/api/usuarios`)
 
 | Método | Rota | Descrição | Status HTTP | Tipo de Entrega |
 |---|---|---|---|---|
 | **GET** | `http://localhost:5000/` | API rodando na porta 5000 | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 110819.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 110819.png>)
 | **POST** | `/api/usuarios` | Cadastra um novo usuário (Paciente, Médico ou Secretária) | `201 Created` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 114736.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 114736.png>)
 | **GET** | `/api/usuarios` | Lista todos os usuários cadastrados | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 114934.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 114934.png>)
 | **GET** | `/api/usuarios/medicos` | Lista apenas os usuários com perfil médico | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 115834.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 115834.png>)
 | **GET** | `/api/usuarios/pacientes` | Lista apenas os usuários com perfil paciente | `200 OK` | **Oficial (1ª Entrega)** |
-![alt text](<Captura de tela 2026-11-12 120024.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 120024.png>)
 | **GET** | `/api/usuarios/:id` | **[EXTRA]** Busca dados de um usuário por ID | `200 OK` / `404 Not Found` | ✨ **Solução Extra** |
-![alt text](<Captura de tela 2026-11-12 120749.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 120749.png>)
 | **PATCH** | `/api/usuarios/:id` | **[EXTRA]** Atualização parcial dos dados do usuário | `200 OK` / `404 Not Found` | ✨ **Solução Extra** |
-![alt text](<Captura de tela 2026-11-12 121651.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 121651.png>)
 | **DELETE** | `/api/usuarios/:id` | **[EXTRA]** Exclui um usuário (com checagem de consultas) | `200 OK` / `400 Bad Request` | ✨ **Solução Extra** |
-![alt text](<Captura de tela 2026-11-12 121816.png>)
+![alt text](<docs/prints/Captura de tela 2026-11-12 121816.png>)
 
 ---
 
